@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: [ main ]  # Keep push trigger if you want scans on direct pushes too
+    branches: [ main ]
 
 jobs:
   super-linter:
@@ -21,6 +21,8 @@ jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    # Only run this job for pull request events
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
