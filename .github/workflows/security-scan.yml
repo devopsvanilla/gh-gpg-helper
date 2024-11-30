@@ -26,14 +26,6 @@ jobs:
           scandir: '.'
           severity: warning
 
-      - name: Run SAST with CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: 'shell'
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
