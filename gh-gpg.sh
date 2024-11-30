@@ -13,8 +13,14 @@ list_gpg_keys() {
 
 # Function to select existing key
 select_existing_key() {
-    local keys=($(gpg --list-secret-keys --keyid-format LONG | grep sec | awk '{print $2}' | awk -F'/' '{print $2}'))
-    local emails=($(gpg --list-secret-keys | grep uid | awk '{$1=""; print $0}' | sed 's/^ //'))
+    local keys=()
+    local emails=()
+    while IFS= read -r line; do
+        keys+=("$(echo "$line" | awk '{print $2}' | awk -F'/' '{print $2}')")
+    done < <(gpg --list-secret-keys --keyid-format LONG | grep sec)
+    while IFS= read -r line; do
+        emails+=("$(echo "$line" | awk '{$1=""; print $0}' | sed 's/^ //')")
+    done < <(gpg --list-secret-keys | grep uid)
 
     if [ ${#keys[@]} -eq 0 ]; then
         echo "No existing keys found."
@@ -26,7 +32,7 @@ select_existing_key() {
         echo "$((i+1))) ${keys[$i]} - ${emails[$i]}"
     done
 
-    read -p "Select key number (1-${#keys[@]}): " key_num
+    read -rp "Select key number (1-${#keys[@]}): " key_num
 
     if [[ "$key_num" =~ ^[0-9]+$ ]] && [ "$key_num" -ge 1 ] && [ "$key_num" -le "${#keys[@]}" ]; then
         KEY_ID="${keys[$((key_num-1))]}"
@@ -63,9 +69,9 @@ install_gh_cli() {
 # Function to create new GPG key
 create_new_key() {
     echo "Please enter the information for your new GPG key:"
-    read -p "Name (must match GitHub username): " NAME
-    read -p "Email (must match GitHub email): " EMAIL
-    read -p "Comment (optional - press enter to skip): " COMMENT
+    read -rp "Name (must match GitHub username): " NAME
+    read -rp "Email (must match GitHub email): " EMAIL
+    read -rp "Comment (optional - press enter to skip): " COMMENT
 
     cat >gpg_key_config <<EOF
 %echo Generating GPG key
@@ -106,7 +112,7 @@ if gpg --list-secret-keys --keyid-format LONG | grep sec >/dev/null 2>&1; then
     echo -e "\nWhat would you like to do?"
     echo "1) Use an existing key"
     echo "2) Create a new key"
-    read -p "Enter choice (1 or 2): " key_choice
+    read -rp "Enter choice (1 or 2): " key_choice
 
     case $key_choice in
         1)
@@ -149,7 +155,7 @@ if ! gh auth status >/dev/null 2>&1; then
     echo "Select authentication method:"
     echo "1) Browser (Recommended)"
     echo "2) Token"
-    read -p "Enter choice (1 or 2): " auth_choice
+    read -rp "Enter choice (1 or 2): " auth_choice
 
     case $auth_choice in
         1)
@@ -173,7 +179,7 @@ if ! gh auth status >/dev/null 2>&1; then
 fi
 
 # Export and add GPG key to GitHub
-GPG_PUBLIC_KEY=$(gpg --armor --export $KEY_ID)
+GPG_PUBLIC_KEY=$(gpg --armor --export "$KEY_ID")
 
 if [ -z "$GPG_PUBLIC_KEY" ]; then
     echo "Failed to export GPG public key"
@@ -184,7 +190,7 @@ echo "Adding GPG key to GitHub..."
 echo "$GPG_PUBLIC_KEY" | gh gpg-key add -
 
 # Configure git
-git config --global user.signingkey $KEY_ID
+git config --global user.signingkey "$KEY_ID"
 git config --global commit.gpgsign true
 
 echo -e "\n=== Configuration Complete ==="
@@ -197,8 +203,8 @@ read -r BACKUP
 if [[ $BACKUP =~ ^[Yy]$ ]]; then
     BACKUP_DIR="$HOME/gpg_backup_$(date +%Y%m%d)"
     mkdir -p "$BACKUP_DIR"
-    gpg --armor --export $KEY_ID > "$BACKUP_DIR/public_key.asc"
-    gpg --armor --export-secret-keys $KEY_ID > "$BACKUP_DIR/private_key.asc"
+    gpg --armor --export "$KEY_ID" > "$BACKUP_DIR/public_key.asc"
+    gpg --armor --export-secret-keys "$KEY_ID" > "$BACKUP_DIR/private_key.asc"
     echo "Keys backed up to: $BACKUP_DIR"
     echo "IMPORTANT: Store these files securely!"
 fi
@@ -217,19 +223,19 @@ echo -e "\nWould you like to test the GPG signing with a test repository? (y/n)"
 read -r TEST_SIGNING
 if [[ $TEST_SIGNING =~ ^[Yy]$ ]]; then
     TEST_DIR=$(mktemp -d)
-    cd "$TEST_DIR"
+    cd "$TEST_DIR" || exit
     git init
     echo "# Test Repository" > README.md
     git add README.md
-    git commit -S -m "Test signed commit"
 
-    if [ $? -eq 0 ]; then
+
+    if git commit -S -m "Test signed commit"; then
         echo "GPG signing test successful!"
     else
         echo "GPG signing test failed. Please check your configuration."
     fi
 
-    cd - > /dev/null
+    cd - > /dev/null || exit
     rm -rf "$TEST_DIR"
 fi
 
