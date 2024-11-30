@@ -1,0 +1,3 @@
+# .actrc
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+--artifact-server-path=/tmp/artifacts

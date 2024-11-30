@@ -38,21 +38,21 @@ bash gh-gpg.sh
 ⚠️ Security Notice : Always review scripts before executing them directly from the internet.
 
 ## What the Script Does
-1. Checks for and installs required dependencies (GPG and GitHub CLI)
+*1.* Checks for and installs required dependencies (GPG and GitHub CLI)
 
-2. Offers options to:
+*2.* Offers options to:
 
-- Create a new GPG key
++ Create a new GPG key
 
-- Use an existing GPG key
++ Use an existing GPG key
 
-3. Configures git for commit signing
+*3.* Configures git for commit signing
 
-4. Adds the GPG key to your GitHub account
+*4.* Adds the GPG key to your GitHub account
 
-5. Offers to create a backup of your GPG keys
+*5.* Offers to create a backup of your GPG keys
 
-6. Sets up everything for signed commits
+*6.* Sets up everything for signed commits
 
 ## After Installation
 
@@ -68,27 +68,27 @@ git config --global --list | grep -i gpg
 
 ## How to sign commits
 
-#### To sign a specific commit
+### To sign a specific commit
 ```bash
 git commit -S -m "your commit message"
 ```
 
-#### To sign all commits automatically (global setting)
+### To sign all commits automatically (global setting)
 ```bash
 git config --global commit.gpgsign true
 ```
 
-#### To sign all commits automatically (repository-specific setting)
+### To sign all commits automatically (repository-specific setting)
 ```bash
 git config commit.gpgsign true
 ```
 
-#### To verify a signed commit
+### To verify a signed commit
 ```bash
 git verify-commit <commit-hash>
 ```
 
-#### To show signatures in git log
+### To show signatures in git log
 ```bash
 git log --show-signature
 ```

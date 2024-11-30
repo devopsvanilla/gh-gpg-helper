@@ -1,0 +1,10 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: act-check
+        name: Run GitHub Actions locally
+        entry: bash -c 'source .venv/bin/activate 2>/dev/null || true; act -n && act --artifact-server-path /tmp/artifacts'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
