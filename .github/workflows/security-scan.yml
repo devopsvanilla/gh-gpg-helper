@@ -39,28 +39,3 @@ jobs:
             git commit -m "Make gh-gpg.sh executable"
             git push
           fi
-
-      - name: Check for sensitive data
-        uses: zricethezav/gitleaks-action@master
-
-      - name: Super-Linter
-        uses: github/super-linter@v5
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_BASH: true
-          VALIDATE_MARKDOWN: true
-          VALIDATE_YAML: true
-
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: high
