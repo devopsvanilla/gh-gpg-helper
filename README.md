@@ -25,19 +25,17 @@ A bash script to automate the setup of GPG keys for GitHub commit signing. This 
 - GitHub account
 - Sudo privileges (for installing dependencies)
 
-## Quick Start
-
-Execute the script directly without cloning the repository:
+## How to use
 
 ```bash
-curl -sL https://raw.githubusercontent.com/USERNAME/REPOSITORY/BRANCH/gh-gpg.sh | bash
+# First, download the script
+curl -O https://raw.githubusercontent.com/devopsvanilla/gh-gpg-helper/refs/heads/main/gh-gpg.sh
+
+# Then run it
+bash gh-gpg.sh
 ```
 
-⚠️ Security Notice : Always review scripts before executing them directly from the internet. You can inspect the script first:
-
-```bash
-bash > curl -sL https://raw.githubusercontent.com/USERNAME/REPOSITORY/BRANCH/gh-gpg.sh | less >
-```
+⚠️ Security Notice : Always review scripts before executing them directly from the internet.
 
 ## What the Script Does
 1. Checks for and installs required dependencies (GPG and GitHub CLI)
